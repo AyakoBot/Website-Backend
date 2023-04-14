@@ -1,0 +1,5 @@
+import type Express from 'express';
+
+export default async (_req: Express.Request, res: Express.Response) => {
+  res.status(418);
+};
