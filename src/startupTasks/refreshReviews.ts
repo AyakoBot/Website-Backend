@@ -1,8 +1,16 @@
 import Jobs from 'node-schedule';
 import * as nodeFetch from 'node-fetch';
-import { reviews } from '../modules/cache.js';
+import DataBase from '../DataBase.js';
 
-type Review = typeof reviews[number];
+type Review = {
+  content: string;
+  score: number;
+  poster: {
+    username: string;
+    avatar: string;
+    id: string;
+  };
+};
 
 const fetch = async () => {
   const getReviews = (page: number = 1) =>
@@ -17,25 +25,19 @@ const fetch = async () => {
     r = r.concat(newReviews);
   }
 
-  reviews.length = 0;
-  reviews.push(
-    ...r.map((review) => ({
-      content: review.content,
-      score: review.score / 20,
-      poster: {
-        username: review.poster.username,
-        avatar: !review.poster.avatar.includes('https://')
-          ? `https://images.discordapp.net/avatars/${review.poster.id}/${review.poster.avatar}.webp?size=512`
-          : review.poster.avatar,
-        id: review.poster.id,
-      },
-    })),
+  r.forEach((review) =>
+    DataBase.query(
+      `INSERT INTO reviews (content, score, username, avatar, userid) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (userid) DO NOTHING;`,
+      [
+        review.content,
+        review.score,
+        review.poster.username,
+        review.poster.avatar,
+        review.poster.id,
+      ],
+    ),
   );
 };
-
-setTimeout(() => {
-  fetch();
-}, 2000);
 
 Jobs.scheduleJob('0 0 1 * *', async () => {
   fetch();

@@ -7,8 +7,8 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "outDir": "dist",
-    "rootDir": "src",
+    "outDir": "./dist/",
+    "rootDir": "./src/",
     "removeComments": true,
     "importHelpers": true,
     "downlevelIteration": true,
@@ -31,7 +31,8 @@
     "esModuleInterop": true,
     "sourceRoot": "./src/",
     "forceConsistentCasingInFileNames": true,
-    "importsNotUsedAsValues": "error",
     "skipLibCheck": true
-  }
+  },
+  "exclude": ["./submodules/**/*", "./dist"],
+  "include": ["./src/**/*"]
 }

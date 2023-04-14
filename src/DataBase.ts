@@ -5,7 +5,7 @@ import auth from './auth.json' assert { type: 'json' };
 const pool = new pg.Pool({
   user: 'postgres',
   host: 'localhost',
-  database: 'Website',
+  database: 'Ayako-v1.5',
   password: auth.psqlPW,
   port: 5432,
 });

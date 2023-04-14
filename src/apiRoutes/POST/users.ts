@@ -35,7 +35,7 @@ export default async (req: Express.Request, res: Express.Response) => {
   res.sendStatus(200);
 
   DataBase.query(
-    `INSERT INTO ayakousers (userid, username, avatar, lastfetch, email) VALUES ($1, $2, $3, $4, $5) 
+    `INSERT INTO users (userid, username, avatar, lastfetch, email) VALUES ($1, $2, $3, $4, $5) 
   ON CONFLICT (userid) DO 
   UPDATE SET username = $2, avatar = $3, lastfetch = $4, email = $5;`,
     [

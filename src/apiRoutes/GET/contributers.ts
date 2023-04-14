@@ -15,7 +15,7 @@ export default async (_req: Express.Request, res: Express.Response) => {
     return;
   }
 
-  const userRes = await DataBase.query(`SELECT * FROM ayakousers WHERE userid = ANY ($1);`, [
+  const userRes = await DataBase.query(`SELECT * FROM users WHERE userid = ANY ($1);`, [
     dbRes.map((r) => r.userid),
   ]);
 
@@ -24,5 +24,5 @@ export default async (_req: Express.Request, res: Express.Response) => {
     return { ...userRow, ...r };
   });
 
-  res.json(mergedObjects);
+  res.json(mergedObjects.reverse());
 };

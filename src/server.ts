@@ -12,7 +12,6 @@ export const server = http.createServer(app);
 export const JSONParser = BodyParser.json();
 export const URLEncodedParser = BodyParser.urlencoded({ extended: false });
 
-const frontendPath = '/root/Bots/Ayako-VueJS/frontend/.output/public/';
 const speedLimiter = SlowDown({
   windowMs: 5 * 1000,
   delayAfter: 10,
@@ -21,7 +20,7 @@ const speedLimiter = SlowDown({
 
 server.listen(80);
 app.enable('trust proxy');
-app.use(Express.static(frontendPath));
+app.use(Express.static('/root/Bots/Ayako-VueJS/Website-Frontend/dist/'));
 app.use(speedLimiter);
 app.use(cors());
 app.use(CookieParser(auth.cookieSecret));
@@ -68,13 +67,5 @@ const handleRequest = async (
   }
 };
 
-app.get('/login', (_, res) =>
-  res.redirect(
-    'https://discord.com/api/oauth2/authorize?client_id=650691698409734151&redirect_uri=https%3A%2F%2Fayakobot.com%2Flogincallback&response_type=token&scope=email%20identify%20guilds.join%20guilds',
-  ),
-);
-app.get('/vdconnect-7b296pt3.php', (_, res) =>
-  res.sendFile('/root/Bots/Ayako-VueJS/vdconnect-7b296pt3.php'),
-);
 app.post('*', JSONParser, (...args) => handleRequest(...args));
 app.get('*', (...args) => handleRequest(...args));

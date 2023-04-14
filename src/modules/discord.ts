@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import fetch from 'node-fetch';
 import auth from '../auth.json' assert { type: 'json' };
+import { RawUser } from '../../submodules/Ayako-v1.6/src/Typings/CustomTypings';
 
 /**
  * Code specific to communicating with the Discord API.
@@ -204,4 +205,12 @@ const getName = (type: 'moderator' | 'owner' | 'support' | 'circusstaff' | 'circ
       return 'Ayako Developer';
     }
   }
+};
+
+export const getAvatar = (user: RawUser) => {
+  if (!user.avatar) return 'https://cdn.discordapp.com/embed/avatars/1.png';
+
+  if (user.avatar.startsWith('a_')) {
+    return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.gif`;
+  } else return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
 };
