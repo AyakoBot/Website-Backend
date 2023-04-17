@@ -1,5 +1,9 @@
 import type Express from 'express';
-import * as discord from '../../../modules/discord.js';
+import { getOAuthTokens } from '../../../modules/discord/getOAuth.js';
+import type { Tokens } from '../../../Typings/CustomTypings.js';
+import getUserData from '../../../modules/discord/getUserData.js';
+import { storeDiscordTokens } from '../../../modules/discord/discordTokens.js';
+import { updateMetadata } from '../../../modules/discord/updateMetadata.js';
 
 export default async (req: Express.Request, res: Express.Response) => {
   const { code, type } = req.query;
@@ -11,11 +15,8 @@ export default async (req: Express.Request, res: Express.Response) => {
     return;
   }
 
-  const tokens = (await discord.getOAuthTokens(
-    code as string,
-    type as 'owner' | 'moderator',
-  )) as discord.Tokens;
-  const meData = await discord.getUserData(tokens);
+  const tokens = (await getOAuthTokens(code as string, type as 'owner' | 'moderator')) as Tokens;
+  const meData = await getUserData(tokens);
   const userId = (meData as { user: { id: string } }).user.id;
 
   switch (type) {
@@ -78,14 +79,14 @@ export default async (req: Express.Request, res: Express.Response) => {
     }
   }
 
-  discord.storeDiscordTokens(userId, {
+  storeDiscordTokens(userId, {
     access_token: tokens.access_token,
     refresh_token: tokens.refresh_token,
     expires_at: Date.now() + tokens.expires_in * 1000,
     expires_in: tokens.expires_in,
   });
 
-  discord.updateMetadata(userId, type);
+  updateMetadata(userId, type);
 
   res.send(
     'Thank you for verifying! Go back to Discord, click on Linked Roles and do the same as before.',

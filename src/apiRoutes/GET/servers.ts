@@ -2,7 +2,9 @@ import type Express from 'express';
 import DataBase from '../../DataBase.js';
 
 export default async (_: Express.Request, res: Express.Response) => {
-  const servers = await DataBase.query('SELECT * FROM guilds;').then((r: any) => r.rows);
+  const servers = await DataBase.query('SELECT * FROM guilds WHERE membercount >= 1000;').then(
+    (r: any) => r.rows,
+  );
   if (!servers) {
     res.sendStatus(500);
     return;

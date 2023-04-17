@@ -2,7 +2,7 @@ import type Express from 'express';
 import fetch from 'node-fetch';
 import DataBase from '../../DataBase.js';
 import * as Types from '../../../submodules/Ayako-v1.6/src/Typings/CustomTypings';
-import { getAvatar } from '../../modules/discord.js';
+import { getAvatar } from '../../modules/discord/getAuthData.js';
 import type { QueryResult } from 'pg';
 
 export default async (req: Express.Request, res: Express.Response) => {

@@ -1,9 +1,9 @@
 import type Express from 'express';
-import * as discord from '../../../modules/discord.js';
+import { getOAuthURL } from '../../../modules/discord/getOAuth.js';
 
 export default async (req: Express.Request, res: Express.Response) => {
   const type = req.query.type as 'moderator' | 'owner';
-  const { url, state } = discord.getOAuthUrl(type);
+  const { url, state } = getOAuthURL(type);
 
   // Store the signed state param in the user's cookies so we can verify
   // the value later. See:
