@@ -5,7 +5,7 @@ import getAccessToken from './getAccessToken.js';
 
 export const updateMetadata = async (
   userId: string,
-  type: 'moderator' | 'owner' | 'support' | 'circusstaff' | 'circusadmin',
+  type: 'moderator' | 'owner' | 'support' | 'circusstaff' | 'circusadmin' | 'helper',
 ) => {
   const tokens = getDiscordTokens(userId);
   const used = getAuth(type);

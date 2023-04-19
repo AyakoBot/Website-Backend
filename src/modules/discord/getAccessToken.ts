@@ -6,7 +6,7 @@ import { getAuth } from './getAuthData.js';
 export default async (
   userId: string,
   tokens: Tokens,
-  type: 'moderator' | 'owner' | 'support' | 'circusstaff' | 'circusadmin',
+  type: 'moderator' | 'owner' | 'support' | 'circusstaff' | 'circusadmin' | 'helper',
 ) => {
   const used = getAuth(type);
 

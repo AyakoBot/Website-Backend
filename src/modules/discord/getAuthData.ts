@@ -2,7 +2,7 @@ import auth from '../../auth.json' assert { type: 'json' };
 import type { RawUser } from '../../../submodules/Ayako-v1.6/src/Typings/CustomTypings';
 
 export const getAuth = (
-  type: 'moderator' | 'owner' | 'support' | 'circusstaff' | 'circusadmin',
+  type: 'moderator' | 'owner' | 'support' | 'circusstaff' | 'circusadmin' | 'helper',
 ) => {
   switch (type) {
     case 'moderator': {
@@ -20,6 +20,9 @@ export const getAuth = (
     case 'circusadmin': {
       return auth.circusAdmin;
     }
+    case 'helper': {
+      return auth.animekosHelper;
+    }
     default: {
       return auth.ayakoOwner;
     }
@@ -27,7 +30,7 @@ export const getAuth = (
 };
 
 export const getName = (
-  type: 'moderator' | 'owner' | 'support' | 'circusstaff' | 'circusadmin',
+  type: 'moderator' | 'owner' | 'support' | 'circusstaff' | 'circusadmin' | 'helper',
 ) => {
   switch (type) {
     case 'moderator': {
@@ -44,6 +47,9 @@ export const getName = (
     }
     case 'circusadmin': {
       return 'Admin';
+    }
+    case 'helper': {
+      return 'Animekos Helper';
     }
     default: {
       return 'Ayako Developer';

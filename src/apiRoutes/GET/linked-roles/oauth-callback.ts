@@ -73,6 +73,13 @@ export default async (req: Express.Request, res: Express.Response) => {
       }
       break;
     }
+    case 'helper': {
+      if (!['1012714899438321796', '984344871445860423', '318453143476371456'].includes(userId)) {
+        res.sendStatus(401);
+        return;
+      }
+      break;
+    }
     default: {
       res.sendStatus(401);
       return;
