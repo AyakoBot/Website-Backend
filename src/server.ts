@@ -9,8 +9,8 @@ import auth from './auth.json' assert { type: 'json' };
 
 export const app = Express();
 export const server = http.createServer(app);
-export const JSONParser = BodyParser.json();
-export const URLEncodedParser = BodyParser.urlencoded({ extended: false });
+const JSONParser = BodyParser.json();
+const URLEncodedParser = BodyParser.urlencoded({ extended: false });
 
 const speedLimiter = SlowDown({
   windowMs: 5 * 1000,
@@ -24,6 +24,7 @@ app.use(Express.static('/root/Bots/Ayako-VueJS/Website-Frontend/dist/'));
 app.use(speedLimiter);
 app.use(cors());
 app.use(CookieParser(auth.cookieSecret));
+app.use(URLEncodedParser);
 app.use(
   BodyParser.json({
     limit: '25mb',
