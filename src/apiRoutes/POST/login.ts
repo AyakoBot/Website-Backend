@@ -23,7 +23,7 @@ export default async (req: Express.Request, res: Express.Response) => {
       client_secret: auth.ayakoOwner.secret,
       grant_type: 'authorization_code',
       code,
-      redirect_uri: 'http://localhost:5173/login',
+      redirect_uri: 'http://ayakobot.com/login',
     }),
   }).then((r) => r.json())) as {
     access_token: string;
