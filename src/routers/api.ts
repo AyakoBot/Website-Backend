@@ -18,6 +18,7 @@ export default async (req: Express.Request, res: Express.Response) => {
 
     imported(req, res);
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.log(e);
     res.sendStatus(404);
   }

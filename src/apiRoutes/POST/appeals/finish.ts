@@ -7,7 +7,7 @@ import type * as DBT from '../../../../submodules/Ayako-v1.6/src/Typings/DataBas
 import type * as CT from '../../../../submodules/Ayako-v1.6/src/Typings/CustomTypings.js';
 import { io, appeal } from '../../../socketIOHandler.js';
 
-type answers = {
+type Answers = {
   uniquetimestamp: string;
   value: string | boolean | number | string[];
 };
@@ -28,7 +28,7 @@ export default async (req: Express.Request, res: Express.Response) => {
     return;
   }
 
-  const answers = req.body as answers[];
+  const answers = req.body as Answers[];
 
   const pun = await checkPunishments(res, user, guildid);
   if (!pun.authorized) return;
@@ -85,7 +85,7 @@ type ApiResponse = AuthorizedResponse | UnauthorizedResponse;
 
 const checkQuestions = async (
   questions: DBT.appealquestions[],
-  answers: answers[],
+  answers: Answers[],
   res: Express.Response,
 ): Promise<ApiResponse> => {
   if (!questions.length) return { authorized: true, questions: [] };
@@ -94,8 +94,6 @@ const checkQuestions = async (
     const answer = answers.find((a) => a.uniquetimestamp === question.uniquetimestamp)?.value;
     if (!answer && question.required) return false;
     if (!answer) return true;
-
-    console.log(answer, question);
 
     switch (question.answertype) {
       case 'number': {
