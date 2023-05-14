@@ -2,7 +2,18 @@ import auth from '../../auth.json' assert { type: 'json' };
 import type { RawUser } from '../../../submodules/Ayako-v1.6/src/Typings/CustomTypings';
 
 export const getAuth = (
-  type: 'moderator' | 'owner' | 'support' | 'circusstaff' | 'circusadmin' | 'helper',
+  type:
+    | 'moderator'
+    | 'owner'
+    | 'support'
+    | 'circusstaff'
+    | 'circusadmin'
+    | 'helper'
+    | 'nr-owner'
+    | 'nr-coowner'
+    | 'nr-management'
+    | 'nr-staff'
+    | 'nr-helper',
 ) => {
   switch (type) {
     case 'moderator': {
@@ -23,6 +34,21 @@ export const getAuth = (
     case 'helper': {
       return auth.animekosHelper;
     }
+    case 'nr-owner': {
+      return auth.nrOwner;
+    }
+    case 'nr-coowner': {
+      return auth.nrCoOwner;
+    }
+    case 'nr-management': {
+      return auth.nrManagement;
+    }
+    case 'nr-staff': {
+      return auth.nrStaff;
+    }
+    case 'nr-helper': {
+      return auth.nrHelper;
+    }
     default: {
       return auth.ayakoOwner;
     }
@@ -30,7 +56,18 @@ export const getAuth = (
 };
 
 export const getName = (
-  type: 'moderator' | 'owner' | 'support' | 'circusstaff' | 'circusadmin' | 'helper',
+  type:
+    | 'moderator'
+    | 'owner'
+    | 'support'
+    | 'circusstaff'
+    | 'circusadmin'
+    | 'helper'
+    | 'nr-owner'
+    | 'nr-coowner'
+    | 'nr-management'
+    | 'nr-staff'
+    | 'nr-helper',
 ) => {
   switch (type) {
     case 'moderator': {
@@ -51,6 +88,21 @@ export const getName = (
     case 'helper': {
       return 'Animekos Helper';
     }
+    case 'nr-owner': {
+      return 'Owner';
+    }
+    case 'nr-coowner': {
+      return 'Co-Owner';
+    }
+    case 'nr-management': {
+      return 'Management';
+    }
+    case 'nr-staff': {
+      return 'Staff';
+    }
+    case 'nr-helper': {
+      return 'Helper';
+    }
     default: {
       return 'Ayako Developer';
     }
@@ -62,5 +114,6 @@ export const getAvatar = (user: RawUser) => {
 
   if (user.avatar.startsWith('a_')) {
     return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.gif`;
-  } else return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
+  }
+  return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
 };

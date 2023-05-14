@@ -17,3 +17,8 @@ rl.on('line', async (msg) => {
 
 // eslint-disable-next-line no-console
 console.log('Website Started');
+
+// eslint-disable-next-line no-console
+process.on('uncaughtException', console.error);
+// eslint-disable-next-line no-console
+process.on('unhandledRejection', console.error);

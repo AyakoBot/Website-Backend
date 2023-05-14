@@ -5,6 +5,19 @@ import getUserData from '../../../modules/discord/getUserData.js';
 import { storeDiscordTokens } from '../../../modules/discord/discordTokens.js';
 import { updateMetadata } from '../../../modules/discord/updateMetadata.js';
 
+type acceptedType =
+  | 'moderator'
+  | 'owner'
+  | 'support'
+  | 'circusstaff'
+  | 'circusadmin'
+  | 'helper'
+  | 'nr-owner'
+  | 'nr-coowner'
+  | 'nr-management'
+  | 'nr-staff'
+  | 'nr-helper';
+
 export default async (req: Express.Request, res: Express.Response) => {
   const { code, type } = req.query;
   const discordState = req.query.state;
@@ -15,7 +28,7 @@ export default async (req: Express.Request, res: Express.Response) => {
     return;
   }
 
-  const tokens = (await getOAuthTokens(code as string, type as 'owner' | 'moderator')) as Tokens;
+  const tokens = (await getOAuthTokens(code as string, type as acceptedType)) as Tokens;
   const meData = await getUserData(tokens);
   const userId = (meData as { user: { id: string } }).user.id;
 
@@ -75,6 +88,48 @@ export default async (req: Express.Request, res: Express.Response) => {
     }
     case 'helper': {
       if (!['1012714899438321796', '984344871445860423', '318453143476371456'].includes(userId)) {
+        res.sendStatus(401);
+        return;
+      }
+      break;
+    }
+    case 'nr-owner': {
+      if (!['716609535615172629'].includes(userId)) {
+        res.sendStatus(401);
+        return;
+      }
+      break;
+    }
+    case 'nr-coowner': {
+      if (!['397785248500547586', '792072784427614258'].includes(userId)) {
+        res.sendStatus(401);
+        return;
+      }
+      break;
+    }
+    case 'nr-management': {
+      if (!['799927212983582750', '175820155832631297'].includes(userId)) {
+        res.sendStatus(401);
+        return;
+      }
+      break;
+    }
+    case 'nr-staff': {
+      if (
+        ![
+          '391398540594905089',
+          '395401839685664769',
+          '394968353464385536',
+          '661164104593047552',
+        ].includes(userId)
+      ) {
+        res.sendStatus(401);
+        return;
+      }
+      break;
+    }
+    case 'nr-helper': {
+      if (!['296059416162074624', '104787569098637312', '346799534283816960'].includes(userId)) {
         res.sendStatus(401);
         return;
       }

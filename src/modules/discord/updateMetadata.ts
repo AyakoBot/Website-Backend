@@ -2,12 +2,26 @@ import fetch from 'node-fetch';
 import { getDiscordTokens } from './discordTokens.js';
 import { getAuth, getName } from './getAuthData.js';
 import getAccessToken from './getAccessToken.js';
+import * as DBT from '../../../submodules/Ayako-v1.6/src/Typings/DataBaseTypings';
 
 export const updateMetadata = async (
   userId: string,
-  type: 'moderator' | 'owner' | 'support' | 'circusstaff' | 'circusadmin' | 'helper',
+  type:
+    | 'moderator'
+    | 'owner'
+    | 'support'
+    | 'circusstaff'
+    | 'circusadmin'
+    | 'helper'
+    | 'nr-owner'
+    | 'nr-coowner'
+    | 'nr-management'
+    | 'nr-staff'
+    | 'nr-helper',
 ) => {
-  const tokens = getDiscordTokens(userId);
+  const tokens = (await getDiscordTokens(userId)) as DBT.users;
+  // eslint-disable-next-line no-console
+  console.log(tokens);
   const used = getAuth(type);
 
   // GET/PUT /users/@me/applications/:id/role-connection
@@ -28,3 +42,5 @@ export const updateMetadata = async (
     throw new Error(`Error pushing discord metadata: [${response.status}] ${response.statusText}`);
   }
 };
+
+export default {};

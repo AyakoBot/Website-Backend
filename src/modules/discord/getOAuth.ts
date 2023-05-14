@@ -1,8 +1,22 @@
+import crypto from 'crypto';
 import fetch from 'node-fetch';
 import { getAuth } from './getAuthData.js';
-import crypto from 'crypto';
 
-export const getOAuthTokens = async (code: string, type: 'moderator' | 'owner' | 'support') => {
+export const getOAuthTokens = async (
+  code: string,
+  type:
+    | 'moderator'
+    | 'owner'
+    | 'support'
+    | 'circusstaff'
+    | 'circusadmin'
+    | 'helper'
+    | 'nr-owner'
+    | 'nr-coowner'
+    | 'nr-management'
+    | 'nr-staff'
+    | 'nr-helper',
+) => {
   const url = 'https://discord.com/api/v10/oauth2/token';
   const used = getAuth(type);
 
@@ -24,9 +38,9 @@ export const getOAuthTokens = async (code: string, type: 'moderator' | 'owner' |
   if (response.ok) {
     const data = await response.json();
     return data;
-  } else {
-    throw new Error(`Error fetching OAuth tokens: [${response.status}] ${response.statusText}`);
   }
+
+  throw new Error(`Error fetching OAuth tokens: [${response.status}] ${response.statusText}`);
 };
 
 export const getOAuthURL = (type: 'moderator' | 'owner' | 'support') => {
