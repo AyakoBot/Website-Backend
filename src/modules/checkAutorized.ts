@@ -21,7 +21,7 @@ export default async (req: Express.Request, res: Express.Response): Promise<ApiR
     return { authorized: false, user: undefined };
   }
 
-  const user = await DataBase.query('SELECT * FROM users WHERE token = $1;', [
+  const user = await DataBase.query('SELECT * FROM users WHERE accesstoken = $1;', [
     token.replace('Bearer ', ''),
   ]).then((r: { rows: DBT.users[] } | null) => (r ? r.rows[0] : null));
   if (!user) {

@@ -41,6 +41,8 @@ export default async (req: Express.Request, res: Express.Response) => {
           '318453143476371456',
           '564052925828038658',
           '267835618032222209',
+          '1012714899438321796',
+          '984344871445860423',
         ].includes(userId)
       ) {
         res.sendStatus(401);
@@ -63,7 +65,14 @@ export default async (req: Express.Request, res: Express.Response) => {
       break;
     }
     case 'circusadmin': {
-      if (!['644499594348331009', '843976133732991006', '812052724896104470'].includes(userId)) {
+      if (
+        ![
+          '644499594348331009',
+          '843976133732991006',
+          '812052724896104470',
+          '994023908007219302',
+        ].includes(userId)
+      ) {
         res.sendStatus(401);
         return;
       }
@@ -79,6 +88,8 @@ export default async (req: Express.Request, res: Express.Response) => {
           '276378789397790720',
           '812052724896104470',
           '843976133732991006',
+          '952457166588112896',
+          '860256603868233760',
         ].includes(userId)
       ) {
         res.sendStatus(401);
@@ -87,7 +98,14 @@ export default async (req: Express.Request, res: Express.Response) => {
       break;
     }
     case 'helper': {
-      if (!['1012714899438321796', '984344871445860423', '318453143476371456'].includes(userId)) {
+      if (
+        ![
+          '318453143476371456',
+          '1067970226953662647',
+          '1055584529349361754',
+          '712826337097940994',
+        ].includes(userId)
+      ) {
         res.sendStatus(401);
         return;
       }
@@ -101,28 +119,28 @@ export default async (req: Express.Request, res: Express.Response) => {
       break;
     }
     case 'nr-coowner': {
-      if (!['397785248500547586', '792072784427614258'].includes(userId)) {
+      if (!['397785248500547586', '792072784427614258', '318453143476371456'].includes(userId)) {
         res.sendStatus(401);
         return;
       }
       break;
     }
     case 'nr-management': {
-      if (!['799927212983582750', '175820155832631297'].includes(userId)) {
+      if (
+        ![
+          '799927212983582750',
+          '175820155832631297',
+          '318453143476371456',
+          '391398540594905089',
+        ].includes(userId)
+      ) {
         res.sendStatus(401);
         return;
       }
       break;
     }
     case 'nr-staff': {
-      if (
-        ![
-          '391398540594905089',
-          '395401839685664769',
-          '394968353464385536',
-          '661164104593047552',
-        ].includes(userId)
-      ) {
+      if (!['395401839685664769', '394968353464385536', '661164104593047552'].includes(userId)) {
         res.sendStatus(401);
         return;
       }

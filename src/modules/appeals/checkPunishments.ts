@@ -49,10 +49,13 @@ export default async (
     )
     SELECT * FROM user_punishments;`,
     guildid ? [user.userid, guildid] : [user.userid],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ).then((r: { rows: any[] } | null) => (r ? r.rows : null));
 
   if (!punishments) {
-    guildid ? res.sendStatus(403) : res.json([]);
+    if (guildid) res.sendStatus(403);
+    else res.json([]);
+
     return { authorized: false };
   }
 

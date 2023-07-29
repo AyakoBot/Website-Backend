@@ -19,7 +19,7 @@ export default async (req: Express.Request, res: Express.Response) => {
     .map((punishment) => punishment.guildid);
 
   const guilds = await DataBase.query(
-    `SELECT * FROM guilds WHERE guildid IN (${guildIDs.map((_, i) => `$${i + 1}`).join(', ')});`, //;`
+    `SELECT * FROM guilds WHERE guildid IN (${guildIDs.map((_, i) => `$${i + 1}`).join(', ')});`, // ;`
     guildIDs,
   ).then((r: { rows: DBT.guilds[] } | null) => (r ? r.rows : null));
 

@@ -1,14 +1,18 @@
 import Express from 'express';
-import http from 'http';
+import https from 'https';
 import BodyParser from 'body-parser';
 import cors from 'cors';
 import SlowDown from 'express-slow-down';
 import CookieParser from 'cookie-parser';
+import fs from 'fs';
 import './startupTasks/index.js';
 import auth from './auth.json' assert { type: 'json' };
 
+const privateKey = fs.readFileSync('/root/Bots/OtherFiles/DBBackup/Certs/privateKey.pem');
+const certificate = fs.readFileSync('/root/Bots/OtherFiles/DBBackup/Certs/originCert.pem');
+
 export const app = Express();
-export const server = http.createServer(app);
+export const server = https.createServer({ key: privateKey, cert: certificate }, app);
 const JSONParser = BodyParser.json();
 const URLEncodedParser = BodyParser.urlencoded({ extended: false });
 
@@ -18,13 +22,17 @@ const speedLimiter = SlowDown({
   delayMs: 1000,
 });
 
-server.listen(80);
+server.listen(443);
 app.enable('trust proxy');
 app.use(Express.static('/root/Bots/Ayako-VueJS/Website-Frontend/dist/'));
 app.use(speedLimiter);
 app.use(cors());
 app.use(CookieParser(auth.cookieSecret));
 app.use(URLEncodedParser);
+app.use((req, _, next) => {
+  if (!req.hostname.includes('ayakobot.com')) return;
+  next();
+});
 app.use(
   BodyParser.json({
     limit: '25mb',
