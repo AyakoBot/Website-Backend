@@ -13,29 +13,34 @@ type Review = {
 };
 
 const fetch = async () => {
-  const getReviews = (page: number = 1) =>
+  const getReviews = (page = 1) =>
     nodeFetch
       .default(`https://top.gg/api/client/entities/650691698409734151/reviews?page=${page}`)
       .then((r) => r.json()) as Promise<Review[]>;
 
   let r: Review[] = [];
-  for (let i = 1; true; i++) {
+  // eslint-disable-next-line no-constant-condition
+  for (let i = 1; true; i += 1) {
+    // eslint-disable-next-line no-await-in-loop
     const newReviews = await getReviews(i);
     if (newReviews.length !== 10) break;
     r = r.concat(newReviews);
   }
 
   r.forEach((review) =>
-    DataBase.query(
-      `INSERT INTO reviews (content, score, username, avatar, userid) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (userid) DO NOTHING;`,
-      [
-        review.content,
-        review.score,
-        review.poster.username,
-        review.poster.avatar,
-        review.poster.id,
-      ],
-    ),
+    DataBase.reviews
+      .upsert({
+        create: {
+          content: review.content,
+          score: review.score,
+          username: review.poster.username,
+          avatar: review.poster.avatar,
+          userid: review.poster.id,
+        },
+        where: { userid: review.poster.id },
+        update: {},
+      })
+      .then(),
   );
 };
 
