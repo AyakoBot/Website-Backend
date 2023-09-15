@@ -1,8 +1,8 @@
 import type Express from 'express';
-import type { QueryResult } from 'pg';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { APIUser } from 'discord-api-types/v10.js';
 import fetch from 'node-fetch';
-import DataBase, { CloneDB } from '../../DataBase.js';
-import * as Types from '../../../submodules/Ayako-v1.6/src/Typings/CustomTypings';
+import DataBase from '../../DataBase.js';
 import { getAvatar } from '../../modules/discord/getAuthData.js';
 import auth from '../../auth.json' assert { type: 'json' };
 
@@ -44,23 +44,29 @@ export default async (req: Express.Request, res: Express.Response) => {
     return;
   }
 
-  const user = (await userRes.json()) as Types.RawUser;
+  const user = (await userRes.json()) as APIUser;
 
-  const query = `INSERT INTO users (userid, username, avatar, lastfetch, email, accesstoken, refreshtoken, expires) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (userid) DO UPDATE SET username = $2, avatar = $3, lastfetch = $4, email = $5, accesstoken = $6, refreshtoken = $7, expires = $8 RETURNING username, avatar, userid, refreshtoken;`;
-  const args = [
-    user.id,
-    user.username,
-    getAvatar(user),
-    Date.now(),
-    user.email,
-    tokenRes.access_token,
-    tokenRes.refresh_token,
-    tokenRes.expires_in * 1000 + Date.now(),
-  ];
-  const transmittedUserData = await DataBase.query(query, args).then(
-    (r: QueryResult<{ userid: string; username: string; avatar: string }>) => r.rows[0],
-  );
-  CloneDB.query(query, args);
-
+  const transmittedUserData = await DataBase.users.upsert({
+    where: { userid: user.id },
+    update: {
+      username: user.username,
+      avatar: getAvatar(user),
+      lastfetch: Date.now(),
+      email: user.email,
+      accesstoken: tokenRes.access_token,
+      refreshtoken: tokenRes.refresh_token,
+      expires: tokenRes.expires_in * 1000 + Date.now(),
+    },
+    create: {
+      userid: user.id,
+      username: user.username,
+      avatar: getAvatar(user),
+      lastfetch: Date.now(),
+      email: user.email,
+      accesstoken: tokenRes.access_token,
+      refreshtoken: tokenRes.refresh_token,
+      expires: tokenRes.expires_in * 1000 + Date.now(),
+    },
+  });
   res.status(200).send({ ...transmittedUserData, token: tokenRes.access_token });
 };

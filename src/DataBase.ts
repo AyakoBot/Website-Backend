@@ -1,51 +1,54 @@
-/* eslint-disable no-console */
-import pg from 'pg';
-import auth from './auth.json' assert { type: 'json' };
+import { PrismaClient, Prisma } from '@prisma/client';
+import { createPrismaRedisCache } from 'prisma-redis-middleware';
+import Redis from 'ioredis';
 
-const AyakoDB = new pg.Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'Ayako-v1.5',
-  password: auth.psqlPW,
-  port: 5432,
-});
+type Argument<F, N extends number> = F extends (...args: infer A) => unknown ? A[N] : never;
 
-const CloneDB = new pg.Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'Clone_DB',
-  password: auth.psqlPW,
-  port: 5432,
-});
+const { log } = console;
 
-const connect = (err: Error) => {
-  if (err) {
-    console.log('Error while logging into DataBase', err.stack);
-  }
+const redis = new Redis();
+const prisma = new PrismaClient();
+
+const options: Argument<typeof createPrismaRedisCache, 0> = {
+  storage: {
+    type: 'redis',
+    options: {
+      client: redis,
+      invalidation: {
+        referencesTTL: 300,
+      },
+      log: process.argv.includes('--debug-queries') ? console : undefined,
+    },
+  },
+  cacheTime: 300,
 };
 
-const error = (err: Error) => {
-  console.log('Unexpected error on idle pool client', err);
-};
+if (process.argv.includes('--debug-db')) {
+  options.onHit = (key) => log(`[Redis] Cache Hit: ${key}`);
+  options.onDedupe = (key) => log(`[Redis] Cache Dedupe: ${key}`);
+  options.onMiss = (key) => log(`[Redis] Cache Miss: ${key}`);
+  options.onError = (error) => log(`[Redis] Error: ${error}`);
+}
 
-AyakoDB.query('SELECT NOW() as now;', (err) => {
-  if (err) {
-    console.log("| Couldn't connect to DataBase", err.stack);
-  } else {
-    console.log('| Established Connection to DataBase');
+const cacheMiddleware: Prisma.Middleware = createPrismaRedisCache(options);
+
+prisma.$use(cacheMiddleware);
+prisma.$use(async (params, next) => {
+  try {
+    const result = await next(params);
+    return result;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (process.argv.includes('--debug-db')) log(`[Prisma] Error: ${error}`);
+      return null;
+    }
+    throw error;
   }
 });
-CloneDB.query('SELECT NOW() as now;', (err) => {
-  if (err) {
-    console.log("| Couldn't connect to CloneDB DataBase", err.stack);
-  } else {
-    console.log('| Established Connection to CloneDB DataBase');
-  }
-});
-AyakoDB.connect(connect);
-CloneDB.connect(connect);
-AyakoDB.on('error', error);
-CloneDB.on('error', error);
 
-export default AyakoDB;
-export { CloneDB };
+redis.on('connect', () => log('[Redis] Connecting to Redis...'));
+redis.on('ready', () => log('[Redis] Established Connection to DataBase'));
+redis.on('error', (err) => log(`[Redis] Error: ${err}`));
+redis.on('reconnecting', () => log('[Redis] Connection lost. Re-connecting...'));
+
+export default prisma;

@@ -1,5 +1,5 @@
 import type Express from 'express';
-import { io, topgg } from '../../socketIOHandler.js';
+import { io, clients } from '../../socketIOHandler.js';
 
 export default async (req: Express.Request, res: Express.Response) => {
   if (!req.body) {
@@ -8,7 +8,7 @@ export default async (req: Express.Request, res: Express.Response) => {
     req.body.authorization = req.headers.authorization;
   }
 
-  topgg.forEach((id) => {
+  clients.forEach((id) => {
     io.to(id).emit('topgg', req.body);
   });
 

@@ -1,17 +1,17 @@
-import Express from 'express';
 import https from 'https';
+import fs from 'fs';
+import Express from 'express';
 import BodyParser from 'body-parser';
 import cors from 'cors';
 import SlowDown from 'express-slow-down';
 import CookieParser from 'cookie-parser';
-import fs from 'fs';
 import './startupTasks/index.js';
 import auth from './auth.json' assert { type: 'json' };
 
 const privateKey = fs.readFileSync('/root/Bots/OtherFiles/DBBackup/Certs/privateKey.pem');
 const certificate = fs.readFileSync('/root/Bots/OtherFiles/DBBackup/Certs/originCert.pem');
 
-export const app = Express();
+export const app: ReturnType<typeof Express> = Express();
 export const server = https.createServer({ key: privateKey, cert: certificate }, app);
 const JSONParser = BodyParser.json();
 const URLEncodedParser = BodyParser.urlencoded({ extended: false });

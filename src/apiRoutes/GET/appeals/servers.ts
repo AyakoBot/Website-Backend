@@ -1,6 +1,5 @@
 import type Express from 'express';
 import DataBase from '../../../DataBase.js';
-import type * as DBT from '../../../../submodules/Ayako-v1.6/src/Typings/DataBaseTypings.js';
 import checkAutorized from '../../../modules/checkAutorized.js';
 import checkPunishments from '../../../modules/appeals/checkPunishments.js';
 
@@ -18,10 +17,7 @@ export default async (req: Express.Request, res: Express.Response) => {
     )
     .map((punishment) => punishment.guildid);
 
-  const guilds = await DataBase.query(
-    `SELECT * FROM guilds WHERE guildid IN (${guildIDs.map((_, i) => `$${i + 1}`).join(', ')});`, // ;`
-    guildIDs,
-  ).then((r: { rows: DBT.guilds[] } | null) => (r ? r.rows : null));
+  const guilds = await DataBase.guilds.findMany({ where: { guildid: { in: guildIDs } } });
 
   res.json(guilds);
 };

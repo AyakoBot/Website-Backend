@@ -1,12 +1,9 @@
 import fetch from 'node-fetch';
-import { storeDiscordTokens } from './discordTokens.js';
-import type { Tokens } from '../../Typings/CustomTypings';
 import { getAuth } from './getAuthData.js';
-import * as DBT from '../../../submodules/Ayako-v1.6/src/Typings/DataBaseTypings';
+import { Tokens } from '../../Typings/CustomTypings';
 
 export default async (
-  userId: string,
-  tokens: DBT.users,
+  tokens: Tokens,
   type:
     | 'moderator'
     | 'owner'
@@ -22,13 +19,13 @@ export default async (
 ) => {
   const used = getAuth(type);
 
-  if (Date.now() > Number(tokens.expires)) {
+  if (Date.now() > Number(tokens.expires_at)) {
     const url = 'https://discord.com/api/v10/oauth2/token';
     const body = new URLSearchParams({
       client_id: used.id,
       client_secret: used.secret,
       grant_type: 'refresh_token',
-      refresh_token: tokens.refreshtoken as string,
+      refresh_token: tokens.refresh_token as string,
     });
     const response = await fetch(url, {
       body,
@@ -39,11 +36,10 @@ export default async (
     });
     if (response.ok) {
       const t = (await response.json()) as Tokens;
-      t.expires_at = Number(tokens.expires);
-      storeDiscordTokens(userId, t);
+      t.expires_at = Number(tokens.expires_at);
       return t.access_token;
     }
     throw new Error(`Error refreshing access token: [${response.status}] ${response.statusText}`);
   }
-  return tokens.accesstoken;
+  return tokens.access_token;
 };

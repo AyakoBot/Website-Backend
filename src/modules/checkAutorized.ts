@@ -1,10 +1,10 @@
+import Prisma from '@prisma/client';
 import type * as Express from 'express';
 import DataBase from '../DataBase.js';
-import type * as DBT from '../../submodules/Ayako-v1.6/src/Typings/DataBaseTypings.js';
 
 type AuthorizedResponse = {
   authorized: true;
-  user: DBT.users;
+  user: Prisma.users;
 };
 
 type UnauthorizedResponse = {
@@ -21,9 +21,10 @@ export default async (req: Express.Request, res: Express.Response): Promise<ApiR
     return { authorized: false, user: undefined };
   }
 
-  const user = await DataBase.query('SELECT * FROM users WHERE accesstoken = $1;', [
-    token.replace('Bearer ', ''),
-  ]).then((r: { rows: DBT.users[] } | null) => (r ? r.rows[0] : null));
+  const user = await DataBase.users.findFirst({
+    where: { accesstoken: token.replace('Bearer ', '') },
+  });
+
   if (!user) {
     res.sendStatus(401);
     return { authorized: false, user: undefined };

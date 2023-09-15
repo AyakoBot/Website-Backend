@@ -43,7 +43,7 @@ export const getOAuthTokens = async (
   throw new Error(`Error fetching OAuth tokens: [${response.status}] ${response.statusText}`);
 };
 
-export const getOAuthURL = (type: 'moderator' | 'owner' | 'support') => {
+export const getOAuthURL = (type: never) => {
   const state = crypto.randomUUID();
   const used = getAuth(type);
 

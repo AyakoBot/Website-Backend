@@ -1,17 +1,21 @@
+import Prisma from '@prisma/client';
 import Express from 'express';
 import DataBase from '../../DataBase.js';
-import type * as DBT from '../../../submodules/Ayako-v1.6/src/Typings/DataBaseTypings.js';
+
+type Punishment =
+  | Prisma.punish_kicks
+  | Prisma.punish_bans
+  | Prisma.punish_mutes
+  | Prisma.punish_warns
+  | Prisma.punish_channelbans;
+
+type PunishmentWithType = Punishment & {
+  type: 'kick' | 'ban' | 'mute' | 'warn' | 'channelban';
+};
 
 type AuthorizedResponse = {
   authorized: true;
-  punishments: {
-    guildid: string;
-    reason: string;
-    channelname: string;
-    channelid: string;
-    uniquetimestamp: string;
-    type: 'ban' | 'channelban' | 'kick' | 'mute' | 'warn';
-  }[];
+  punishments: PunishmentWithType[];
 };
 
 type UnauthorizedResponse = {
@@ -22,35 +26,36 @@ type ApiResponse = AuthorizedResponse | UnauthorizedResponse;
 
 export default async (
   res: Express.Response,
-  user: DBT.users,
+  user: Prisma.users,
   guildid?: string,
 ): Promise<ApiResponse> => {
-  const punishments = await DataBase.query(
-    `WITH user_punishments AS (
-      SELECT guildid, reason, channelname, channelid, uniquetimestamp, 'ban' as type FROM punish_bans WHERE userid = $1 ${
-        guildid ? 'AND guildid = $2' : ''
-      }
-      UNION ALL
-      SELECT guildid, reason, channelname, channelid, uniquetimestamp, 'channelban' as type FROM punish_channelbans WHERE userid = $1 ${
-        guildid ? 'AND guildid = $2' : ''
-      }
-      UNION ALL
-      SELECT guildid, reason, channelname, channelid, uniquetimestamp, 'kick' as type FROM punish_kicks WHERE userid = $1 ${
-        guildid ? 'AND guildid = $2' : ''
-      }
-      UNION ALL
-      SELECT guildid, reason, channelname, channelid, uniquetimestamp, 'mute' as type FROM punish_mutes WHERE userid = $1 ${
-        guildid ? 'AND guildid = $2' : ''
-      }
-      UNION ALL
-      SELECT guildid, reason, channelname, channelid, uniquetimestamp, 'warn' as type FROM punish_warns WHERE userid = $1 ${
-        guildid ? 'AND guildid = $2' : ''
-      }
-    )
-    SELECT * FROM user_punishments;`,
-    guildid ? [user.userid, guildid] : [user.userid],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ).then((r: { rows: any[] } | null) => (r ? r.rows : null));
+  const where = {
+    where: { userid: user.userid, guildid },
+  };
+
+  const kicks = await DataBase.punish_kicks
+    .findMany(where)
+    .then((r) => r.map((v) => ({ ...v, type: 'kick' })));
+  const bans = await DataBase.punish_bans
+    .findMany(where)
+    .then((r) => r.map((v) => ({ ...v, type: 'ban' })));
+  const mutes = await DataBase.punish_mutes
+    .findMany(where)
+    .then((r) => r.map((v) => ({ ...v, type: 'mute' })));
+  const warns = await DataBase.punish_warns
+    .findMany(where)
+    .then((r) => r.map((v) => ({ ...v, type: 'warn' })));
+  const channelbans = await DataBase.punish_channelbans
+    .findMany(where)
+    .then((r) => r.map((v) => ({ ...v, type: 'channelban' })));
+
+  const punishments = [
+    ...kicks,
+    ...bans,
+    ...mutes,
+    ...warns,
+    ...channelbans,
+  ] as PunishmentWithType[];
 
   if (!punishments) {
     if (guildid) res.sendStatus(403);

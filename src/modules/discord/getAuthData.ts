@@ -1,5 +1,6 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { APIUser } from 'discord-api-types/v10.js';
 import auth from '../../auth.json' assert { type: 'json' };
-import type { RawUser } from '../../../submodules/Ayako-v1.6/src/Typings/CustomTypings';
 
 export const getAuth = (
   type:
@@ -109,7 +110,7 @@ export const getName = (
   }
 };
 
-export const getAvatar = (user: RawUser) => {
+export const getAvatar = (user: APIUser) => {
   if (!user.avatar) return 'https://cdn.discordapp.com/embed/avatars/1.png';
 
   if (user.avatar.startsWith('a_')) {

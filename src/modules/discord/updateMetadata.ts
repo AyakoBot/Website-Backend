@@ -1,11 +1,10 @@
 import fetch from 'node-fetch';
-import { getDiscordTokens } from './discordTokens.js';
 import { getAuth, getName } from './getAuthData.js';
 import getAccessToken from './getAccessToken.js';
-import * as DBT from '../../../submodules/Ayako-v1.6/src/Typings/DataBaseTypings';
+import { Tokens } from '../../Typings/CustomTypings.js';
 
 export const updateMetadata = async (
-  userId: string,
+  tokens: Tokens,
   type:
     | 'moderator'
     | 'owner'
@@ -19,14 +18,11 @@ export const updateMetadata = async (
     | 'nr-staff'
     | 'nr-helper',
 ) => {
-  const tokens = (await getDiscordTokens(userId)) as DBT.users;
-  // eslint-disable-next-line no-console
-  console.log(tokens);
   const used = getAuth(type);
 
   // GET/PUT /users/@me/applications/:id/role-connection
   const url = `https://discord.com/api/v10/users/@me/applications/${used.id}/role-connection`;
-  const accessToken = await getAccessToken(userId, tokens, type);
+  const accessToken = await getAccessToken(tokens, type);
 
   const response = await fetch(url, {
     method: 'PUT',

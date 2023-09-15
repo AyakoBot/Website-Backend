@@ -2,7 +2,6 @@ import type Express from 'express';
 import { getOAuthTokens } from '../../../modules/discord/getOAuth.js';
 import type { Tokens } from '../../../Typings/CustomTypings.js';
 import getUserData from '../../../modules/discord/getUserData.js';
-import { storeDiscordTokens } from '../../../modules/discord/discordTokens.js';
 import { updateMetadata } from '../../../modules/discord/updateMetadata.js';
 
 type acceptedType =
@@ -20,14 +19,6 @@ type acceptedType =
 
 export default async (req: Express.Request, res: Express.Response) => {
   const { code, type } = req.query;
-  const discordState = req.query.state;
-
-  const { clientState } = req.signedCookies;
-  if (clientState !== discordState) {
-    res.sendStatus(403);
-    return;
-  }
-
   const tokens = (await getOAuthTokens(code as string, type as acceptedType)) as Tokens;
   const meData = await getUserData(tokens);
   const userId = (meData as { user: { id: string } }).user.id;
@@ -43,6 +34,7 @@ export default async (req: Express.Request, res: Express.Response) => {
           '267835618032222209',
           '1012714899438321796',
           '984344871445860423',
+          '1067970226953662647',
         ].includes(userId)
       ) {
         res.sendStatus(401);
@@ -159,14 +151,7 @@ export default async (req: Express.Request, res: Express.Response) => {
     }
   }
 
-  storeDiscordTokens(userId, {
-    access_token: tokens.access_token,
-    refresh_token: tokens.refresh_token,
-    expires_at: Date.now() + tokens.expires_in * 1000,
-    expires_in: tokens.expires_in,
-  });
-
-  updateMetadata(userId, type);
+  updateMetadata(tokens, type);
 
   res.send(
     'Thank you for verifying! Go back to Discord, click on Linked Roles and do the same as before.',

@@ -34,22 +34,36 @@ export default async (req: Express.Request, res: Express.Response) => {
 
   res.sendStatus(200);
 
-  DataBase.query(
-    `INSERT INTO users (userid, username, avatar, lastfetch, email) VALUES ($1, $2, $3, $4, $5) 
-  ON CONFLICT (userid) DO 
-  UPDATE SET username = $2, avatar = $3, lastfetch = $4, email = $5;`,
-    [
-      userData.id,
-      `${userData.username}#${userData.discriminator}`,
-      `${
-        userData.avatar
-          ? `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}${
-              userData.avatar?.startsWith('a_') ? '.gif' : '.png'
-            }`
-          : 'https://cdn.discordapp.com/embed/avatars/1.png'
-      }`,
-      Date.now(),
-      userData.email,
-    ],
-  );
+  const avatar = `${
+    userData.avatar
+      ? `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}${
+          userData.avatar?.startsWith('a_') ? '.gif' : '.png'
+        }`
+      : 'https://cdn.discordapp.com/embed/avatars/1.png'
+  }`;
+
+  DataBase.users
+    .upsert({
+      where: { userid: userData.id },
+      update: {
+        username: `${userData.username}#${userData.discriminator}`,
+        avatar,
+        lastfetch: Date.now(),
+        email: userData.email,
+      },
+      create: {
+        userid: userData.id,
+        username: `${userData.username}#${userData.discriminator}`,
+        avatar: `${
+          userData.avatar
+            ? `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}${
+                userData.avatar?.startsWith('a_') ? '.gif' : '.png'
+              }`
+            : 'https://cdn.discordapp.com/embed/avatars/1.png'
+        }`,
+        lastfetch: Date.now(),
+        email: userData.email,
+      },
+    })
+    .then();
 };

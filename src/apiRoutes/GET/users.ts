@@ -8,7 +8,7 @@ export default async (req: Express.Request, res: Express.Response) => {
   }
 
   const IDs = Array.isArray(req.query.id) ? req.query.id : [req.query.id];
-  const dbRes = await DataBase.query(`SELECT * FROM users WHERE userid = ANY ($1);`, [IDs]);
+  const dbRes = await DataBase.users.findMany({ where: { userid: { in: IDs as string[] } } });
 
-  res.json(dbRes.rows);
+  res.json(dbRes);
 };

@@ -4,3 +4,4 @@
 /src/auth.json
 /dist
 /submodules
+.env

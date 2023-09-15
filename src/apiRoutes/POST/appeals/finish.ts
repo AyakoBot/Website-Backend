@@ -1,11 +1,10 @@
+import Prisma from '@prisma/client';
 import type Express from 'express';
 import checkAutorized from '../../../modules/checkAutorized.js';
 import checkPunishments from '../../../modules/appeals/checkPunishments.js';
 import checkAppeals from '../../../modules/appeals/checkAppeals.js';
 import DataBase from '../../../DataBase.js';
-import type * as DBT from '../../../../submodules/Ayako-v1.6/src/Typings/DataBaseTypings.js';
-import type * as CT from '../../../../submodules/Ayako-v1.6/src/Typings/CustomTypings.js';
-import { io, appeal } from '../../../socketIOHandler.js';
+import { io, clients } from '../../../socketIOHandler.js';
 
 type Answers = {
   uniquetimestamp: string;
@@ -41,40 +40,43 @@ export default async (req: Express.Request, res: Express.Response) => {
 
   const questions = answers.length
     ? answers
-        .map((a) => canAppeal.questions.find((q) => q.uniquetimestamp === a.uniquetimestamp))
+        .map((a) =>
+          canAppeal.questions.find((q) => q.uniquetimestamp.toString() === a.uniquetimestamp),
+        )
         .filter((q) => !!q?.question)
     : [];
 
-  await DataBase.query(
-    `INSERT INTO appeals (userid, guildid, questions, questiontypes, answers, punishmentid) VALUES ($1, $2, $3, $4, $5, $6);`,
-    [
-      user.userid,
+  await DataBase.appeals.create({
+    data: {
+      userid: user.userid,
       guildid,
-      questions.map((q) => q?.question),
-      questions.map((q) => q?.answertype),
-      questions.map((q) => answers.find((a) => a.uniquetimestamp === q?.uniquetimestamp)?.value),
+      questions: questions.map((q) => q?.question).filter((q): q is string => !!q),
+      answers: questions.map(
+        (q) =>
+          answers.find((a) => a.uniquetimestamp === q?.uniquetimestamp.toString())?.value ?? null,
+      ) as string[],
       punishmentid,
-    ],
-  );
+    },
+  });
 
-  const emitAppeal: CT.Appeal = {
+  const emitAppeal = {
     userid: user.userid,
     guildid,
     punishmentid,
     questions: questions.map((q) => q?.question).filter((q): q is string => !!q),
     answertypes: questions.map((q) => q?.answertype),
     answers: questions
-      .map((q) => answers.find((a) => a.uniquetimestamp === q?.uniquetimestamp)?.value)
+      .map((q) => answers.find((a) => a.uniquetimestamp === q?.uniquetimestamp.toString())?.value)
       .filter((a): a is string => !!a),
   };
 
-  appeal.map((id) => io.to(id).emit('appeal', emitAppeal));
+  clients.map((id) => io.to(id).emit('appeal', emitAppeal));
   res.sendStatus(200);
 };
 
 type AuthorizedResponse = {
   authorized: true;
-  questions: DBT.appealquestions[];
+  questions: Prisma.appealquestions[];
 };
 
 type UnauthorizedResponse = {
@@ -84,14 +86,16 @@ type UnauthorizedResponse = {
 type ApiResponse = AuthorizedResponse | UnauthorizedResponse;
 
 const checkQuestions = async (
-  questions: DBT.appealquestions[],
+  questions: Prisma.appealquestions[],
   answers: Answers[],
   res: Express.Response,
 ): Promise<ApiResponse> => {
   if (!questions.length) return { authorized: true, questions: [] };
 
   const areValid = questions.map((question) => {
-    const answer = answers.find((a) => a.uniquetimestamp === question.uniquetimestamp)?.value;
+    const answer = answers.find(
+      (a) => a.uniquetimestamp === question.uniquetimestamp.toString(),
+    )?.value;
     if (!answer && question.required) return false;
     if (!answer) return true;
 
@@ -104,13 +108,13 @@ const checkQuestions = async (
         if (typeof answer !== 'boolean') return false;
         break;
       }
-      case 'multiple choice': {
+      case 'multiple_choice': {
         if (!Array.isArray(answer)) return false;
         if (!answers.map((a) => typeof a === 'string').includes(false)) return false;
         if (!answer.length) return false;
         break;
       }
-      case 'single choice': {
+      case 'single_choice': {
         if (typeof answer !== 'string') return false;
         break;
       }

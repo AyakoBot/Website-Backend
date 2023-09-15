@@ -11,7 +11,6 @@ export default async (tokens: Tokens) => {
   if (response.ok) {
     const data = await response.json();
     return data;
-  } else {
-    throw new Error(`Error fetching user data: [${response.status}] ${response.statusText}`);
   }
+  throw new Error(`Error fetching user data: [${response.status}] ${response.statusText}`);
 };

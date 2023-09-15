@@ -2,19 +2,17 @@ import type Express from 'express';
 import DataBase from '../../DataBase.js';
 
 export default async (_: Express.Request, res: Express.Response) => {
-  const servers = await DataBase.query('SELECT * FROM guilds WHERE membercount >= 1000;').then(
-    (r: any) => r.rows,
-  );
+  const servers = await DataBase.guilds.findMany({ where: { membercount: { gte: 1000 } } });
   if (!servers) {
     res.sendStatus(500);
     return;
   }
 
-  const count = await DataBase.query('SELECT * FROM stats;').then((r: any) => r.rows[0]);
+  const count = await DataBase.stats.findFirst();
 
   res.json({
     servers,
-    count: count.guildcount,
-    users: count.allusers,
+    count: Number(count?.guildcount),
+    users: Number(count?.allusers),
   });
 };
