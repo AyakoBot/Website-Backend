@@ -90,7 +90,7 @@ model appeals {
   guildid       String   @db.VarChar
   questions     String[]
   questiontypes String[]
-  answers       String?
+  answers       String[]
   punishmentid  Decimal  @db.Decimal
 
   @@id([punishmentid, userid])
@@ -274,6 +274,9 @@ model guildsettings {
   errorchannel     String? @db.VarChar
   vanity           String?
   voterole         String? @db.VarChar
+  token            String? @db.Text
+  appid            String? @db.VarChar
+  publickey        String? @db.Text
 }
 
 model level {
