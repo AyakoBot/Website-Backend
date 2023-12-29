@@ -15,7 +15,13 @@ export default async (_req: Express.Request, res: Express.Response) => {
 
   const mergedObjects = dbRes.map((r) => {
     const userRow = userRes.find((u) => u.userid === r.userid);
-    return { ...userRow, ...r };
+    return {
+      ...r,
+      username: userRow?.username,
+      avatar: userRow?.avatar,
+      socials: userRow?.socials,
+      socialstype: userRow?.socialstype,
+    };
   });
 
   res.json(mergedObjects.reverse());

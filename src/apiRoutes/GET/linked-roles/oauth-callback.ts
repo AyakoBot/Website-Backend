@@ -18,6 +18,9 @@ type acceptedType =
   | 'nr-helper';
 
 export default async (req: Express.Request, res: Express.Response) => {
+  res.sendStatus(404);
+  return;
+
   const { code, type } = req.query;
   const tokens = (await getOAuthTokens(code as string, type as acceptedType)) as Tokens;
   const meData = await getUserData(tokens);
@@ -35,6 +38,7 @@ export default async (req: Express.Request, res: Express.Response) => {
           '1012714899438321796',
           '984344871445860423',
           '1067970226953662647',
+          '712826337097940994',
         ].includes(userId)
       ) {
         res.sendStatus(401);
@@ -43,7 +47,7 @@ export default async (req: Express.Request, res: Express.Response) => {
       break;
     }
     case 'owner': {
-      if (!['267835618032222209'].includes(userId)) {
+      if (!['267835618032222209', '318453143476371456'].includes(userId)) {
         res.sendStatus(401);
         return;
       }
@@ -90,14 +94,7 @@ export default async (req: Express.Request, res: Express.Response) => {
       break;
     }
     case 'helper': {
-      if (
-        ![
-          '318453143476371456',
-          '1067970226953662647',
-          '1055584529349361754',
-          '712826337097940994',
-        ].includes(userId)
-      ) {
+      if (![''].includes(userId)) {
         res.sendStatus(401);
         return;
       }
@@ -151,6 +148,8 @@ export default async (req: Express.Request, res: Express.Response) => {
     }
   }
 
+  console.log('can have role', meData);
+  // @ts-ignore
   updateMetadata(tokens, type);
 
   res.send(

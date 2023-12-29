@@ -1,6 +1,5 @@
 import fetch from 'node-fetch';
-import { getAuth, getName } from './getAuthData.js';
-import getAccessToken from './getAccessToken.js';
+import { getAuth, getName, getMetadata } from './getAuthData.js';
 import { Tokens } from '../../Typings/CustomTypings.js';
 
 export const updateMetadata = async (
@@ -22,15 +21,22 @@ export const updateMetadata = async (
 
   // GET/PUT /users/@me/applications/:id/role-connection
   const url = `https://discord.com/api/v10/users/@me/applications/${used.id}/role-connection`;
-  const accessToken = await getAccessToken(tokens, type);
+  console.log(tokens);
+  const body: {
+    platform_name: ReturnType<typeof getName>;
+    metadata?: ReturnType<typeof getMetadata>;
+  } = {
+    platform_name: getName(type),
+    metadata: getMetadata(type),
+  };
+
+  if (!body.metadata) delete body.metadata;
 
   const response = await fetch(url, {
     method: 'PUT',
-    body: JSON.stringify({
-      platform_name: getName(type),
-    }),
+    body: JSON.stringify(body),
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${tokens.access_token}`,
       'Content-Type': 'application/json',
     },
   });

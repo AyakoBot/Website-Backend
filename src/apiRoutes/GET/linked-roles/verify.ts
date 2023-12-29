@@ -2,6 +2,9 @@ import type Express from 'express';
 import { getOAuthURL } from '../../../modules/discord/getOAuth.js';
 
 export default async (req: Express.Request, res: Express.Response) => {
+  res.sendStatus(404);
+  return;
+
   const type = req.query.type as never;
   const { url, state } = getOAuthURL(type);
 

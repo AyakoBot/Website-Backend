@@ -23,7 +23,7 @@ export default async (
     where: { guildid, active: true, channelid: { not: null } },
   });
 
-  if (!appealsettings || appealsettings.blusers?.includes(user.userid)) {
+  if (!appealsettings || appealsettings.bluserid?.includes(user.userid)) {
     res.sendStatus(403);
     return { authorized: false };
   }

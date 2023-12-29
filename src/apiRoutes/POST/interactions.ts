@@ -30,5 +30,5 @@ export default async (req: Express.Request, res: Express.Response) => {
   if (body.type === DiscordAPI.InteractionType.Ping) return res.status(200).json({ type: 1 });
 
   clients.map((id) => io.to(id).emit('interaction', body));
-  return res.sendStatus(200);
+  return undefined;
 };

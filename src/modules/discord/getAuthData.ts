@@ -118,3 +118,27 @@ export const getAvatar = (user: APIUser) => {
   }
   return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
 };
+
+export const getMetadata = (
+  type:
+    | 'moderator'
+    | 'owner'
+    | 'support'
+    | 'circusstaff'
+    | 'circusadmin'
+    | 'helper'
+    | 'nr-owner'
+    | 'nr-coowner'
+    | 'nr-management'
+    | 'nr-staff'
+    | 'nr-helper',
+) => {
+  switch (type) {
+    case 'helper': {
+      return auth.animekosHelper.metadata;
+    }
+    default: {
+      return [];
+    }
+  }
+};
