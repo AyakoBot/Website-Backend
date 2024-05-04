@@ -1,7 +1,7 @@
 import fs from 'fs';
 import type Express from 'express';
 
-const accessBasePath = `./dist/apiRoutes/`;
+const accessBasePath = `./apiRoutes/`;
 const importBasePath = '../apiRoutes/';
 
 export default async (req: Express.Request, res: Express.Response) => {

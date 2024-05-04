@@ -1,5 +1,4 @@
-import https from 'https';
-import fs from 'fs';
+import http from 'http';
 import Express from 'express';
 import BodyParser from 'body-parser';
 import cors from 'cors';
@@ -8,19 +7,12 @@ import CookieParser from 'cookie-parser';
 import './startupTasks/index.js';
 import auth from './auth.json' assert { type: 'json' };
 
-const privateKey = fs.readFileSync('/root/Bots/OtherFiles/DBBackup/Certs/privateKey.pem');
-const certificate = fs.readFileSync('/root/Bots/OtherFiles/DBBackup/Certs/originCert.pem');
-
 export const app: ReturnType<typeof Express> = Express();
-export const server = https.createServer({ key: privateKey, cert: certificate }, app);
+export const server = http.createServer(app);
 const JSONParser = BodyParser.json();
 const URLEncodedParser = BodyParser.urlencoded({ extended: false });
 
-const speedLimiter = SlowDown({
-  windowMs: 5 * 1000,
-  delayAfter: 10,
-  delayMs: 1000,
-});
+const speedLimiter = SlowDown({ windowMs: 5 * 1000, delayAfter: 10, delayMs: 1000 });
 
 server.listen(443);
 app.enable('trust proxy');
@@ -30,6 +22,7 @@ app.use(cors());
 app.use(CookieParser(auth.cookieSecret));
 app.use(URLEncodedParser);
 app.use((req, _, next) => {
+ console.log(req.hostname);
   if (!req.hostname.includes('ayakobot.com')) return;
   next();
 });
@@ -52,9 +45,7 @@ const handleRequest = async (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _: Express.NextFunction,
 ) => {
-  if (!req.headers || !req.headers.host) {
-    return;
-  }
+  if (!req.headers || !req.headers.host) return;
 
   const subDomain = req.headers.host.split(/\./g)[0].toLowerCase();
   const param = req.path.split(/\//g)[1].toLowerCase();
